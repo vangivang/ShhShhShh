@@ -35,6 +35,7 @@ public class MainActivity extends ActionBarActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(MEDIA_STOPPED_ACTION)){
                 mStartButton.setEnabled(true);
+                mSpinner.setEnabled(true);
             }
         }
     };
@@ -44,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             MediaService.MediaBinder binder = (MediaService.MediaBinder) service;
             mMediaService = binder.getService();
-            startService(mPlayIntent);
+            LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(mMediaPlayerStoppedBroadCast, new IntentFilter(MEDIA_STOPPED_ACTION));
         }
 
         @Override
@@ -52,30 +53,18 @@ public class MainActivity extends ActionBarActivity {
             mMediaService = null;
         }
     };
+    private Spinner mSpinner;
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(mPlayIntent == null){
-            mPlayIntent = new Intent(this, MediaService.class);
-            bindService(mPlayIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMediaPlayerStoppedBroadCast, new IntentFilter(MEDIA_STOPPED_ACTION));
+        bindService(mPlayIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMediaPlayerStoppedBroadCast);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mMediaService != null){
-            unbindService(mServiceConnection);
-        }
+        unbindService(mServiceConnection);
     }
 
     @Override
@@ -86,36 +75,17 @@ public class MainActivity extends ActionBarActivity {
         Toolbar mToolBar = (Toolbar) findViewById(R.id.appBar);
         setSupportActionBar(mToolBar);
 
-        mStartButton = (Button) findViewById(R.id.startButton);
-        Button mStopButton = (Button) findViewById(R.id.stopButton);
+        if (mPlayIntent == null){
+            mPlayIntent = new Intent(this, MediaService.class);
+        }
 
-        mStartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                v.setEnabled(false);
-                if (mMediaService != null) {
-                    mMediaService.startMediaPlayer(mTimeToFinish);
-                    mIsRunning = true;
-                }
-            }
-        });
+        startService(mPlayIntent);
 
-        mStopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMediaService.stopMediaPlayer();
-                mIsRunning = false;
-                if (!mStartButton.isEnabled()) {
-                    mStartButton.setEnabled(true);
-                }
-            }
-        });
-
-        Spinner spinner = (Spinner) findViewById(R.id.shutDownSpinner);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mSpinner = (Spinner) findViewById(R.id.shutDownSpinner);
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
+                switch (position) {
                     case 0:
                         mTimeToFinish = 5 * ONE_MINUTE;
                         break;
@@ -133,6 +103,33 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
+
+        mStartButton = (Button) findViewById(R.id.startButton);
+        Button mStopButton = (Button) findViewById(R.id.stopButton);
+
+        mStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                v.setEnabled(false);
+                mSpinner.setEnabled(false);
+                if (mMediaService != null) {
+                    mMediaService.startMediaPlayer(mTimeToFinish);
+                    mIsRunning = true;
+                }
+            }
+        });
+
+        mStopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMediaService.stopMediaPlayer();
+                mIsRunning = false;
+                if (!mStartButton.isEnabled()) {
+                    mStartButton.setEnabled(true);
+                    mSpinner.setEnabled(true);
+                }
             }
         });
 
