@@ -31,6 +31,7 @@ public class MediaService extends Service {
     }
 
     public void stopMediaPlayer() {
+        
         release();
     }
 
