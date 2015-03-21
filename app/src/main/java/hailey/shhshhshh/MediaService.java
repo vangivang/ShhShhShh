@@ -72,7 +72,7 @@ public class MediaService extends Service {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(android.R.drawable.stat_sys_headset)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("ShhShhShh Player")
                         .setContentText("Playing the ShhShhShh song...")
                         .setContentIntent(resultPendingIntent);

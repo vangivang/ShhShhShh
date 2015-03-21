@@ -116,6 +116,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 stopService(mPlayIntent);
                 mIsPlayingShh = false;
+                mIsPlayingDeepWhiteNoise = false;
                 if (!mStartButton.isEnabled()) {
                     mStartButton.setEnabled(true);
                     mSpinner.setEnabled(true);
