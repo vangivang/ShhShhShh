@@ -1,13 +1,12 @@
 package hailey.shhshhshh;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,54 +17,36 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import java.util.concurrent.TimeUnit;
+
 
 public class MainActivity extends ActionBarActivity {
 
     public static final String IS_RUNNING = "IS_RUNNING";
     public static final String MEDIA_STOPPED_ACTION = "MEDIA_STOPPED_ACTION";
+
     private static final long ONE_MINUTE = 1000 * 60;
+    private static final long FIVE_MINUTE = 5 * ONE_MINUTE;
+    private static final long TEN_MINUTE = 10 * ONE_MINUTE;
+    private static final long FIFTEEN_MINUTE = 15 * ONE_MINUTE;
+
     private Intent mPlayIntent;
-    private MediaService mMediaService;
     private boolean mIsRunning = false;
-    private long mTimeToFinish;
     private Button mStartButton;
+    private Spinner mSpinner;
+    private long mTimeServiceIsRunning;
 
     private BroadcastReceiver mMediaPlayerStoppedBroadCast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(MEDIA_STOPPED_ACTION)){
+            if (intent.getAction().equals(MEDIA_STOPPED_ACTION)) {
+                mTimeServiceIsRunning = System.currentTimeMillis() - mTimeServiceIsRunning;
                 mStartButton.setEnabled(true);
                 mSpinner.setEnabled(true);
+                displayAlert();
             }
         }
     };
-
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MediaService.MediaBinder binder = (MediaService.MediaBinder) service;
-            mMediaService = binder.getService();
-            LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(mMediaPlayerStoppedBroadCast, new IntentFilter(MEDIA_STOPPED_ACTION));
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mMediaService = null;
-        }
-    };
-    private Spinner mSpinner;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        bindService(mPlayIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unbindService(mServiceConnection);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,29 +56,28 @@ public class MainActivity extends ActionBarActivity {
         Toolbar mToolBar = (Toolbar) findViewById(R.id.appBar);
         setSupportActionBar(mToolBar);
 
-        if (mPlayIntent == null){
-            mPlayIntent = new Intent(this, MediaService.class);
-        }
-
-        startService(mPlayIntent);
-
         mSpinner = (Spinner) findViewById(R.id.shutDownSpinner);
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                long timeToFinish;
+
                 switch (position) {
                     case 0:
-                        mTimeToFinish = 5 * ONE_MINUTE;
+                        timeToFinish = FIVE_MINUTE;
                         break;
                     case 1:
-                        mTimeToFinish = 10 * ONE_MINUTE;
+                        timeToFinish = TEN_MINUTE;
                         break;
                     case 2:
-                        mTimeToFinish = 15 * ONE_MINUTE;
+                        timeToFinish = FIFTEEN_MINUTE;
                         break;
                     default:
+                        timeToFinish = FIVE_MINUTE;
                         break;
                 }
+
+                mPlayIntent.putExtra(MediaService.TIME_TO_FINISH, timeToFinish);
             }
 
             @Override
@@ -106,6 +86,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+        updatePlayIntent(FIVE_MINUTE);
         mStartButton = (Button) findViewById(R.id.startButton);
         Button mStopButton = (Button) findViewById(R.id.stopButton);
 
@@ -114,17 +95,16 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(final View v) {
                 v.setEnabled(false);
                 mSpinner.setEnabled(false);
-                if (mMediaService != null) {
-                    mMediaService.startMediaPlayer(mTimeToFinish);
-                    mIsRunning = true;
-                }
+                mTimeServiceIsRunning = System.currentTimeMillis();
+                startService(mPlayIntent);
+                mIsRunning = true;
             }
         });
 
         mStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMediaService.stopMediaPlayer();
+                stopService(mPlayIntent);
                 mIsRunning = false;
                 if (!mStartButton.isEnabled()) {
                     mStartButton.setEnabled(true);
@@ -137,8 +117,48 @@ public class MainActivity extends ActionBarActivity {
             if (savedInstanceState.getBoolean(IS_RUNNING, false)) {
                 mIsRunning = true;
                 mStartButton.setEnabled(false);
+            } else {
+                mIsRunning = false;
+                mStartButton.setEnabled(true);
             }
+        } else {
+            LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(mMediaPlayerStoppedBroadCast, new IntentFilter(MEDIA_STOPPED_ACTION));
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(MainActivity.this).unregisterReceiver(mMediaPlayerStoppedBroadCast);
+    }
+
+    private void updatePlayIntent(long timeToFinish){
+        if (mPlayIntent == null) {
+            mPlayIntent = new Intent(this, MediaService.class);
+            mPlayIntent.putExtra(MediaService.TIME_TO_FINISH, timeToFinish);
+        }
+    }
+
+    private void displayAlert() {
+        String formatted = String.format("Operation ran for: " + "%d min, %d sec",
+                TimeUnit.MILLISECONDS.toMinutes(mTimeServiceIsRunning),
+                TimeUnit.MILLISECONDS.toSeconds(mTimeServiceIsRunning) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(mTimeServiceIsRunning))
+        );
+
+        new AlertDialog.Builder(this)
+                .setMessage(formatted)
+                .setCancelable(false)
+                .setNeutralButton(getString(android.R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+
+                            }
+                        }
+                )
+                .create().show();
     }
 
     @Override

@@ -20,13 +20,13 @@
 
             <ImageView
                 android:id="@+id/babyImage"
-                android:layout_width="300dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitEnd"
-                android:src="@drawable/baby_meme" />
+                android:src="@drawable/baby_meme_b" />
 
             <View
                 android:id="@+id/anchor"
