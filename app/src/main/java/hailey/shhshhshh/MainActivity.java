@@ -138,6 +138,10 @@ public class MainActivity extends ActionBarActivity {
                     if (!mStartButton.isEnabled()){
                         mStartButton.setEnabled(true);
                     }
+
+                    if (!mSpinner.isEnabled()){
+                        mSpinner.setEnabled(true);
+                    }
                 } else {
                     if (mIsPlayingShh){
                         stopService(mPlayIntent);
@@ -145,6 +149,10 @@ public class MainActivity extends ActionBarActivity {
 
                     if (mStartButton.isEnabled()){
                         mStartButton.setEnabled(false);
+                    }
+
+                    if (mSpinner.isEnabled()){
+                        mSpinner.setEnabled(false);
                     }
 
                     updatePlayIntent(0, MediaService.MediaType.DEEP_WHITE_NOISE);
