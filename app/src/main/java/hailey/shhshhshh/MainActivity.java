@@ -22,19 +22,22 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends ActionBarActivity {
 
-    public static final String IS_RUNNING = "IS_RUNNING";
+    public static final String IS_PLAYING_SHH = "IS_PLAYING_SHH";
     public static final String MEDIA_STOPPED_ACTION = "MEDIA_STOPPED_ACTION";
 
-    private static final long ONE_MINUTE = 1000;
+    private static final long ONE_MINUTE = 1000 * 60;
     private static final long FIVE_MINUTE = 5 * ONE_MINUTE;
     private static final long TEN_MINUTE = 10 * ONE_MINUTE;
     private static final long FIFTEEN_MINUTE = 15 * ONE_MINUTE;
+    private static final String IS_PLAYING_WHITE_NOISE = "IS_PLAYING_WHITE_NOISE";
 
     private Intent mPlayIntent;
-    private boolean mIsRunning = false;
+    private boolean mIsPlayingShh = false;
     private Button mStartButton;
+    private Button mDeepWhiteNoiseButton;
     private Spinner mSpinner;
     private long mTimeServiceIsRunning;
+    private boolean mIsPlayingDeepWhiteNoise = false;
 
     private BroadcastReceiver mMediaPlayerStoppedBroadCast = new BroadcastReceiver() {
         @Override
@@ -77,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
                         break;
                 }
 
-                mPlayIntent.putExtra(MediaService.TIME_TO_FINISH, timeToFinish);
+                updatePlayIntent(timeToFinish, MediaService.MediaType.SHH);
             }
 
             @Override
@@ -86,18 +89,25 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        updatePlayIntent(FIVE_MINUTE);
+//        updatePlayIntent(FIVE_MINUTE, MediaService.MediaType.SHH);
+        mDeepWhiteNoiseButton = (Button) findViewById(R.id.deepWhiteNoiseButton);
         mStartButton = (Button) findViewById(R.id.startButton);
         Button mStopButton = (Button) findViewById(R.id.stopButton);
 
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
+                if (mIsPlayingDeepWhiteNoise){
+                    stopService(mPlayIntent);
+                }
+
                 v.setEnabled(false);
+                mDeepWhiteNoiseButton.setEnabled(false);
                 mSpinner.setEnabled(false);
                 mTimeServiceIsRunning = System.currentTimeMillis();
+                updatePlayIntent(FIVE_MINUTE, MediaService.MediaType.SHH);
                 startService(mPlayIntent);
-                mIsRunning = true;
+                mIsPlayingShh = true;
             }
         });
 
@@ -105,20 +115,65 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 stopService(mPlayIntent);
-                mIsRunning = false;
+                mIsPlayingShh = false;
+                mIsPlayingDeepWhiteNoise = false;
                 if (!mStartButton.isEnabled()) {
                     mStartButton.setEnabled(true);
                     mSpinner.setEnabled(true);
+                }
+
+                if (!mDeepWhiteNoiseButton.isEnabled()){
+                    mDeepWhiteNoiseButton.setEnabled(true);
+                }
+            }
+        });
+
+        mDeepWhiteNoiseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (mIsPlayingDeepWhiteNoise){
+                    mIsPlayingDeepWhiteNoise = false;
+                    stopService(mPlayIntent);
+                    if (!mStartButton.isEnabled()){
+                        mStartButton.setEnabled(true);
+                    }
+
+                    if (!mSpinner.isEnabled()){
+                        mSpinner.setEnabled(true);
+                    }
+                } else {
+                    if (mIsPlayingShh){
+                        stopService(mPlayIntent);
+                    }
+
+                    if (mStartButton.isEnabled()){
+                        mStartButton.setEnabled(false);
+                    }
+
+                    if (mSpinner.isEnabled()){
+                        mSpinner.setEnabled(false);
+                    }
+
+                    updatePlayIntent(0, MediaService.MediaType.DEEP_WHITE_NOISE);
+                    startService(mPlayIntent);
+                    mIsPlayingDeepWhiteNoise = true;
                 }
             }
         });
 
         if (savedInstanceState != null) {
-            if (savedInstanceState.getBoolean(IS_RUNNING, false)) {
-                mIsRunning = true;
+            if (savedInstanceState.getBoolean(IS_PLAYING_SHH, false)) {
+                mIsPlayingShh = true;
+                mIsPlayingDeepWhiteNoise = false;
+                mStartButton.setEnabled(false);
+            } else if (savedInstanceState.getBoolean(IS_PLAYING_WHITE_NOISE, false)){
+                mIsPlayingShh = false;
+                mIsPlayingDeepWhiteNoise = true;
                 mStartButton.setEnabled(false);
             } else {
-                mIsRunning = false;
+                mIsPlayingDeepWhiteNoise = false;
+                mIsPlayingShh = false;
                 mStartButton.setEnabled(true);
             }
         } else {
@@ -132,11 +187,13 @@ public class MainActivity extends ActionBarActivity {
         LocalBroadcastManager.getInstance(MainActivity.this).unregisterReceiver(mMediaPlayerStoppedBroadCast);
     }
 
-    private void updatePlayIntent(long timeToFinish){
-        if (mPlayIntent == null) {
-            mPlayIntent = new Intent(this, MediaService.class);
-            mPlayIntent.putExtra(MediaService.TIME_TO_FINISH, timeToFinish);
+    private void updatePlayIntent(long timeToFinish, MediaService.MediaType mediaType){
+        mPlayIntent = new Intent(this, MediaService.class);
+        if (timeToFinish > 0){
+            mPlayIntent.putExtra(MediaService.INTENT_TIME_TO_FINISH, timeToFinish);
         }
+
+        mPlayIntent.putExtra(MediaService.INTENT_MEDIA_TYPE, mediaType);
     }
 
     private void displayAlert() {
@@ -164,7 +221,8 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(IS_RUNNING, mIsRunning);
+        outState.putBoolean(IS_PLAYING_SHH, mIsPlayingShh);
+        outState.putSerializable(IS_PLAYING_WHITE_NOISE, mIsPlayingDeepWhiteNoise);
     }
 
     @Override
