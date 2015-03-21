@@ -26,9 +26,9 @@ public class MainActivity extends ActionBarActivity {
     public static final String MEDIA_STOPPED_ACTION = "MEDIA_STOPPED_ACTION";
 
     private static final long ONE_MINUTE = 1000 * 60;
-    private static final long FIVE_MINUTE = 5 * ONE_MINUTE;
-    private static final long TEN_MINUTE = 10 * ONE_MINUTE;
-    private static final long FIFTEEN_MINUTE = 15 * ONE_MINUTE;
+    private static final long TEN_MINUTES = 10 * ONE_MINUTE;
+    private static final long FIFTEEN_MINUTES = 15 * ONE_MINUTE;
+    private static final long TWENTY_MINUTE = 20 * ONE_MINUTE;
     private static final String IS_PLAYING_WHITE_NOISE = "IS_PLAYING_WHITE_NOISE";
 
     private Intent mPlayIntent;
@@ -67,16 +67,16 @@ public class MainActivity extends ActionBarActivity {
 
                 switch (position) {
                     case 0:
-                        timeToFinish = FIVE_MINUTE;
+                        timeToFinish = TEN_MINUTES;
                         break;
                     case 1:
-                        timeToFinish = TEN_MINUTE;
+                        timeToFinish = FIFTEEN_MINUTES;
                         break;
                     case 2:
-                        timeToFinish = FIFTEEN_MINUTE;
+                        timeToFinish = TWENTY_MINUTE;
                         break;
                     default:
-                        timeToFinish = FIVE_MINUTE;
+                        timeToFinish = TEN_MINUTES;
                         break;
                 }
 
@@ -89,7 +89,6 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-//        updatePlayIntent(FIVE_MINUTE, MediaService.MediaType.SHH);
         mDeepWhiteNoiseButton = (Button) findViewById(R.id.deepWhiteNoiseButton);
         mStartButton = (Button) findViewById(R.id.startButton);
         Button mStopButton = (Button) findViewById(R.id.stopButton);
@@ -105,7 +104,7 @@ public class MainActivity extends ActionBarActivity {
                 mDeepWhiteNoiseButton.setEnabled(false);
                 mSpinner.setEnabled(false);
                 mTimeServiceIsRunning = System.currentTimeMillis();
-                updatePlayIntent(FIVE_MINUTE, MediaService.MediaType.SHH);
+                updatePlayIntent(TEN_MINUTES, MediaService.MediaType.SHH);
                 startService(mPlayIntent);
                 mIsPlayingShh = true;
             }
