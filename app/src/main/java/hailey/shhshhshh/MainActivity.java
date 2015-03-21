@@ -25,7 +25,7 @@ public class MainActivity extends ActionBarActivity {
     public static final String IS_RUNNING = "IS_RUNNING";
     public static final String MEDIA_STOPPED_ACTION = "MEDIA_STOPPED_ACTION";
 
-    private static final long ONE_MINUTE = 1000 * 60;
+    private static final long ONE_MINUTE = 1000;
     private static final long FIVE_MINUTE = 5 * ONE_MINUTE;
     private static final long TEN_MINUTE = 10 * ONE_MINUTE;
     private static final long FIFTEEN_MINUTE = 15 * ONE_MINUTE;
