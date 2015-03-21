@@ -20,7 +20,7 @@
 
             <ImageView
                 android:id="@+id/babyImage"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
@@ -62,6 +62,15 @@
                 android:layout_marginTop="10dp"
                 android:entries="@array/timer_values"
                 />
+
+            <Button
+                android:id="@+id/deepWhiteNoiseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deep white noise"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/shutDownSpinner"
+                android:layout_marginTop="15dp"/>
 
         </RelativeLayout>
     </ScrollView>
