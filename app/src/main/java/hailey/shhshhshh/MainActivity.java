@@ -26,9 +26,6 @@ public class MainActivity extends ActionBarActivity {
     public static final String MEDIA_STOPPED_ACTION = "MEDIA_STOPPED_ACTION";
 
     private static final long ONE_MINUTE = 1000 * 60;
-    private static final long TEN_MINUTES = 10 * ONE_MINUTE;
-    private static final long FIFTEEN_MINUTES = 15 * ONE_MINUTE;
-    private static final long TWENTY_MINUTE = 20 * ONE_MINUTE;
     private static final String IS_PLAYING_WHITE_NOISE = "IS_PLAYING_WHITE_NOISE";
 
     private Intent mPlayIntent;
@@ -64,19 +61,20 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 long timeToFinish;
+                int[] values = getResources().getIntArray(R.array.timer_values);
 
                 switch (position) {
                     case 0:
-                        timeToFinish = TEN_MINUTES;
+                        timeToFinish = values[0] * ONE_MINUTE;
                         break;
                     case 1:
-                        timeToFinish = FIFTEEN_MINUTES;
+                        timeToFinish = values[1] * ONE_MINUTE;
                         break;
                     case 2:
-                        timeToFinish = TWENTY_MINUTE;
+                        timeToFinish = values[2] * ONE_MINUTE;
                         break;
                     default:
-                        timeToFinish = TEN_MINUTES;
+                        timeToFinish = values[0] * ONE_MINUTE;
                         break;
                 }
 
@@ -104,7 +102,7 @@ public class MainActivity extends ActionBarActivity {
                 mDeepWhiteNoiseButton.setEnabled(false);
                 mSpinner.setEnabled(false);
                 mTimeServiceIsRunning = System.currentTimeMillis();
-                updatePlayIntent(TEN_MINUTES, MediaService.MediaType.SHH);
+                updatePlayIntent(getCurrentTimeSelectionFromSpinner(), MediaService.MediaType.SHH);
                 startService(mPlayIntent);
                 mIsPlayingShh = true;
             }
@@ -193,6 +191,18 @@ public class MainActivity extends ActionBarActivity {
         }
 
         mPlayIntent.putExtra(MediaService.INTENT_MEDIA_TYPE, mediaType);
+    }
+
+    private long getCurrentTimeSelectionFromSpinner(){
+        long time;
+        int[] values = getResources().getIntArray(R.array.timer_values);
+        if (mSpinner != null){
+            time = values[mSpinner.getSelectedItemPosition()];
+        } else {
+            time = values[0];
+        }
+
+        return time * ONE_MINUTE;
     }
 
     private void displayAlert() {

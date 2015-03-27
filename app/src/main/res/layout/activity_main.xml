@@ -60,7 +60,7 @@
                 android:layout_below="@+id/anchor"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
-                android:entries="@array/timer_values"
+                android:entries="@array/timer_labels"
                 />
 
             <Button
