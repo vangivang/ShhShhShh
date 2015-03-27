@@ -43,6 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/anchor"
                 android:layout_toLeftOf="@+id/anchor"
+                android:layout_toStartOf="@+id/anchor"
                 android:text="Start" />
 
             <Button
@@ -51,6 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/anchor"
                 android:layout_toRightOf="@+id/anchor"
+                android:layout_toEndOf="@+id/anchor"
                 android:text="Stop" />
 
             <Spinner
@@ -61,6 +63,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:entries="@array/timer_labels"
+
                 />
 
             <Button
