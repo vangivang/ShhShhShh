@@ -14,11 +14,15 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import java.util.concurrent.TimeUnit;
+
+import hailey.shhshhshh.views.WhiteNoiseBoard;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -31,8 +35,9 @@ public class MainActivity extends ActionBarActivity {
 
     private Intent mPlayIntent;
     private boolean mIsPlayingShh = false;
-    private Button mStartButton;
-    private Button mDeepWhiteNoiseButton;
+    private ImageButton mStartButton;
+    private WhiteNoiseBoard mDeepWhiteNoiseButton;
+    private ImageButton mSpinningArrow;
     private Spinner mSpinner;
     private long mTimeServiceIsRunning;
     private boolean mIsPlayingDeepWhiteNoise = false;
@@ -54,8 +59,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar mToolBar = (Toolbar) findViewById(R.id.appBar);
-        setSupportActionBar(mToolBar);
+        mSpinningArrow = (ImageButton) findViewById(R.id.spinningArrow);
 
         mSpinner = (Spinner) findViewById(R.id.shutDownSpinner);
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -88,9 +92,9 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        mDeepWhiteNoiseButton = (Button) findViewById(R.id.deepWhiteNoiseButton);
-        mStartButton = (Button) findViewById(R.id.startButton);
-        Button mStopButton = (Button) findViewById(R.id.stopButton);
+        mDeepWhiteNoiseButton = (WhiteNoiseBoard) findViewById(R.id.deepWhiteNoiseButton);
+        mStartButton = (ImageButton) findViewById(R.id.startButton);
+        ImageButton mStopButton = (ImageButton) findViewById(R.id.stopButton);
 
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,6 +110,7 @@ public class MainActivity extends ActionBarActivity {
                 updatePlayIntent(getCurrentTimeSelectionFromSpinner(), MediaService.MediaType.SHH);
                 startService(mPlayIntent);
                 mIsPlayingShh = true;
+                mSpinningArrow.animate().rotation(180f).setDuration(200l).setInterpolator(new AccelerateDecelerateInterpolator());
             }
         });
 
@@ -114,6 +119,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 stopService(mPlayIntent);
                 mIsPlayingShh = false;
+                mSpinningArrow.animate().rotation(0f).setDuration(200l).setInterpolator(new AccelerateDecelerateInterpolator());
                 mIsPlayingDeepWhiteNoise = false;
                 if (!mStartButton.isEnabled()) {
                     mStartButton.setEnabled(true);
