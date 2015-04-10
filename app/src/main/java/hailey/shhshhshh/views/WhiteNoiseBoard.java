@@ -18,6 +18,7 @@ public class WhiteNoiseBoard extends View {
 
     private Bitmap mBitmap;
     private boolean mIsBitmapSelected = false;
+    private boolean mIsTouchable = true;
 
     public WhiteNoiseBoard(Context context) {
         super(context);
@@ -34,8 +35,15 @@ public class WhiteNoiseBoard extends View {
         initBitmap();
     }
 
-    private void initBitmap(){
+    public void initBitmap(){
         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.white_noise_board_non_active);
+    }
+
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        mIsTouchable = enabled;
     }
 
     @Override
@@ -47,24 +55,28 @@ public class WhiteNoiseBoard extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch(event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                int xx = (int) event.getX();
-                int yy = (int) event.getY();
+        if (mIsTouchable){
+            switch(event.getAction()){
+                case MotionEvent.ACTION_DOWN:
+                    int xx = (int) event.getX();
+                    int yy = (int) event.getY();
 
-                if (Color.alpha(mBitmap.getPixel(xx, yy)) != 0){
-                    initBitmap();
-                    if (!mIsBitmapSelected){
-                        mIsBitmapSelected = true;
-                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.white_noise_board_active);
-                    } else {
-                        mIsBitmapSelected = false;
+                    if (Color.alpha(mBitmap.getPixel(xx, yy)) != 0){
+                        initBitmap();
+                        if (!mIsBitmapSelected){
+                            mIsBitmapSelected = true;
+                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.white_noise_board_active);
+                            performClick();
+                        } else {
+                            mIsBitmapSelected = false;
+                        }
                     }
-                }
-                break;
+                    invalidate();
+                    break;
+            }
         }
-        invalidate();
-        return true;
+
+        return mIsTouchable;
     }
 
     @Override

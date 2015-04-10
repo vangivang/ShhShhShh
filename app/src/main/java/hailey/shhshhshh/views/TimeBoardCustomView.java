@@ -14,13 +14,32 @@ import hailey.shhshhshh.R;
 /**
  * Created by alonm on 4/9/15.
  */
-public class TimeBoardCustomView extends View implements View.OnClickListener {
+public class TimeBoardCustomView extends View {
+
+    private static final int ONE_MINUTE = 1000 ;
 
     private Bitmap mBitmap1;
     private Bitmap mBitmap2;
     private Bitmap mBitmap3;
     private boolean mIsTouchable = true;
-    public enum TimeAmount {TEN, TWENTY, THIRTY}
+
+    public enum TimeAmount {
+        TEN(10 * ONE_MINUTE),
+        TWENTY(20 * ONE_MINUTE),
+        THIRTY(30 * ONE_MINUTE);
+
+        private int mTimeInMillis;
+
+        TimeAmount(int timeInMillis){
+            mTimeInMillis = timeInMillis;
+        }
+
+        public int timeValue(){
+            return mTimeInMillis;
+        }
+    }
+
+
     private TimeAmount mTimeAmount;
     private OnTimeAmountClickListener mOnTimeAmountClickListener;
 
@@ -73,6 +92,7 @@ public class TimeBoardCustomView extends View implements View.OnClickListener {
         if (mIsTouchable) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
+                    mTimeAmount = TimeAmount.TEN;
                     int xx = (int) event.getX();
                     int yy = (int) event.getY();
                     if (Color.alpha(mBitmap1.getPixel(xx, yy)) != 0) {
@@ -88,24 +108,27 @@ public class TimeBoardCustomView extends View implements View.OnClickListener {
                         mBitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.thirty_min_board_active);
                         mTimeAmount = TimeAmount.THIRTY;
                     }
+                    invalidate();
+                    mOnTimeAmountClickListener.onTimeAmountClicked(mTimeAmount);
                     break;
             }
 
-            invalidate();
-            performClick();
         }
 
-        return true;
+        return mIsTouchable;
+    }
+
+    public TimeAmount getCurrentTimeAmount(){
+        if (mTimeAmount == null){
+            mTimeAmount = TimeAmount.TEN;
+        }
+
+        return mTimeAmount;
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         setMeasuredDimension(mBitmap1.getWidth(), mBitmap1.getHeight());
-    }
-
-    @Override
-    public void onClick(View v) {
-        mOnTimeAmountClickListener.onTimeAmountClicked(mTimeAmount);
     }
 }

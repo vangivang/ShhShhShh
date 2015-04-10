@@ -30,8 +30,6 @@ public class MainActivity extends ActionBarActivity {
 
     public static final String IS_PLAYING_SHH = "IS_PLAYING_SHH";
     public static final String MEDIA_STOPPED_ACTION = "MEDIA_STOPPED_ACTION";
-
-    private static final long ONE_MINUTE = 1000 * 60;
     private static final String IS_PLAYING_WHITE_NOISE = "IS_PLAYING_WHITE_NOISE";
 
     private Intent mPlayIntent;
@@ -50,6 +48,7 @@ public class MainActivity extends ActionBarActivity {
                 mTimeServiceIsRunning = System.currentTimeMillis() - mTimeServiceIsRunning;
                 mStartButton.setEnabled(true);
                 mTimeBoardCustomView.setEnabled(true);
+                setSpinningArrow(false);
                 displayAlert();
             }
         }
@@ -66,73 +65,17 @@ public class MainActivity extends ActionBarActivity {
         mTimeBoardCustomView.setOnClickListener(new TimeBoardCustomView.OnTimeAmountClickListener() {
             @Override
             public void onTimeAmountClicked(TimeBoardCustomView.TimeAmount timeAmount) {
-                long timeToFinish;
-                switch (timeAmount){
-                    case TEN:
-                        timeToFinish = 10 * ONE_MINUTE;
-                        break;
-                    case TWENTY:
-                        timeToFinish = 20 * ONE_MINUTE;
-                        break;
-                    case THIRTY:
-                        timeToFinish = 30 * ONE_MINUTE;
-                        break;
-                    default:
-                        timeToFinish = 10 * ONE_MINUTE;
-                }
-
-                updatePlayIntent(timeToFinish, MediaService.MediaType.SHH);
+                updatePlayIntent(timeAmount.timeValue(), MediaService.MediaType.SHH);
             }
         });
 
         mDeepWhiteNoiseButton = (WhiteNoiseBoard) findViewById(R.id.deepWhiteNoiseButton);
-
-        mStartButton = (ImageButton) findViewById(R.id.startButton);
-        ImageButton mStopButton = (ImageButton) findViewById(R.id.stopButton);
-
-        mStartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                if (mIsPlayingDeepWhiteNoise){
-                    stopService(mPlayIntent);
-                }
-
-                v.setEnabled(false);
-                mDeepWhiteNoiseButton.setEnabled(false);
-                mTimeBoardCustomView.setEnabled(false);
-                mTimeServiceIsRunning = System.currentTimeMillis();
-                updatePlayIntent(10 * ONE_MINUTE, MediaService.MediaType.SHH); //TODO: don't forget to set this
-                startService(mPlayIntent);
-                mIsPlayingShh = true;
-                mSpinningArrow.animate().rotation(180f).setDuration(200l).setInterpolator(new AccelerateDecelerateInterpolator());
-            }
-        });
-
-        mStopButton.setOnClickListener(new View.OnClickListener() {
+        mDeepWhiteNoiseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopService(mPlayIntent);
-                mIsPlayingShh = false;
-                mSpinningArrow.animate().rotation(0f).setDuration(200l).setInterpolator(new AccelerateDecelerateInterpolator());
-                mIsPlayingDeepWhiteNoise = false;
-                if (!mStartButton.isEnabled()) {
-                    mStartButton.setEnabled(true);
-                    mTimeBoardCustomView.setEnabled(true);
-                    mTimeBoardCustomView.initBitmaps();
-                }
-
-                if (!mDeepWhiteNoiseButton.isEnabled()){
-                    mDeepWhiteNoiseButton.setEnabled(true);
-                }
-            }
-        });
-
-        mDeepWhiteNoiseButton.setOnClickListener(new View.OnClickListener() { //TODO: this will not work. use a listener inside the view class
-            @Override
-            public void onClick(View v) {
-
                 if (mIsPlayingDeepWhiteNoise){
                     mIsPlayingDeepWhiteNoise = false;
+                    mDeepWhiteNoiseButton.initBitmap();
                     stopService(mPlayIntent);
                     if (!mStartButton.isEnabled()){
                         mStartButton.setEnabled(true);
@@ -157,6 +100,46 @@ public class MainActivity extends ActionBarActivity {
                     updatePlayIntent(0, MediaService.MediaType.DEEP_WHITE_NOISE);
                     startService(mPlayIntent);
                     mIsPlayingDeepWhiteNoise = true;
+                }
+            }
+        });
+
+        mStartButton = (ImageButton) findViewById(R.id.startButton);
+        ImageButton mStopButton = (ImageButton) findViewById(R.id.stopButton);
+
+        mStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                if (mIsPlayingDeepWhiteNoise){
+                    stopService(mPlayIntent);
+                }
+
+                v.setEnabled(false);
+                mDeepWhiteNoiseButton.setEnabled(false);
+                mTimeBoardCustomView.setEnabled(false);
+                mTimeServiceIsRunning = System.currentTimeMillis();
+                updatePlayIntent(mTimeBoardCustomView.getCurrentTimeAmount().timeValue(), MediaService.MediaType.SHH); //TODO: don't forget to set this
+                startService(mPlayIntent);
+                mIsPlayingShh = true;
+                setSpinningArrow(true);
+            }
+        });
+
+        mStopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopService(mPlayIntent);
+                mIsPlayingShh = false;
+                setSpinningArrow(false);
+                mIsPlayingDeepWhiteNoise = false;
+                if (!mStartButton.isEnabled()) {
+                    mStartButton.setEnabled(true);
+                    mTimeBoardCustomView.setEnabled(true);
+                }
+
+                if (!mDeepWhiteNoiseButton.isEnabled()){
+                    mDeepWhiteNoiseButton.setEnabled(true);
+                    mDeepWhiteNoiseButton.initBitmap();
                 }
             }
         });
@@ -186,6 +169,12 @@ public class MainActivity extends ActionBarActivity {
         LocalBroadcastManager.getInstance(MainActivity.this).unregisterReceiver(mMediaPlayerStoppedBroadCast);
     }
 
+    private void setSpinningArrow(boolean isOn){
+        if (mSpinningArrow != null){
+            mSpinningArrow.animate().rotation(isOn? 180 : 0).setDuration(200l).setInterpolator(new AccelerateDecelerateInterpolator());
+        }
+    }
+
     private void updatePlayIntent(long timeToFinish, MediaService.MediaType mediaType){
         mPlayIntent = new Intent(this, MediaService.class);
         if (timeToFinish > 0){
@@ -194,18 +183,6 @@ public class MainActivity extends ActionBarActivity {
 
         mPlayIntent.putExtra(MediaService.INTENT_MEDIA_TYPE, mediaType);
     }
-
-//    private long getCurrentTimeSelectionFromSpinner(){
-//        long time;
-//        int[] values = getResources().getIntArray(R.array.timer_values);
-//        if (mSpinner != null){
-//            time = values[mSpinner.getSelectedItemPosition()];
-//        } else {
-//            time = values[0];
-//        }
-//
-//        return time * ONE_MINUTE;
-//    }
 
     private void displayAlert() {
         String formatted = String.format("Operation ran for: " + "%d min, %d sec",
