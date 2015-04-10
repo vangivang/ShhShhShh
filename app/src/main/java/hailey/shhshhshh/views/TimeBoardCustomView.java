@@ -16,7 +16,7 @@ import hailey.shhshhshh.R;
  */
 public class TimeBoardCustomView extends View {
 
-    private static final int ONE_MINUTE = 1000 ;
+    private static final int ONE_MINUTE = 1000 * 60;
 
     private Bitmap mBitmap1;
     private Bitmap mBitmap2;

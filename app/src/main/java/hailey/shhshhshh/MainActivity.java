@@ -9,16 +9,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 
 import java.util.concurrent.TimeUnit;
 
@@ -48,8 +43,10 @@ public class MainActivity extends ActionBarActivity {
                 mTimeServiceIsRunning = System.currentTimeMillis() - mTimeServiceIsRunning;
                 mStartButton.setEnabled(true);
                 mTimeBoardCustomView.setEnabled(true);
+                mDeepWhiteNoiseButton.setEnabled(true);
+                mDeepWhiteNoiseButton.initBitmap();
                 setSpinningArrow(false);
-                displayAlert();
+                displayFinishedAlert();
             }
         }
     };
@@ -97,6 +94,7 @@ public class MainActivity extends ActionBarActivity {
                         mTimeBoardCustomView.setEnabled(false);
                     }
 
+                    mTimeBoardCustomView.initBitmaps();
                     updatePlayIntent(0, MediaService.MediaType.DEEP_WHITE_NOISE);
                     startService(mPlayIntent);
                     mIsPlayingDeepWhiteNoise = true;
@@ -130,17 +128,19 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 stopService(mPlayIntent);
                 mIsPlayingShh = false;
-                setSpinningArrow(false);
                 mIsPlayingDeepWhiteNoise = false;
-                if (!mStartButton.isEnabled()) {
-                    mStartButton.setEnabled(true);
-                    mTimeBoardCustomView.setEnabled(true);
-                }
+                setSpinningArrow(false);
+                mDeepWhiteNoiseButton.initBitmap();
+                mDeepWhiteNoiseButton.setEnabled(true);
+                mStartButton.setEnabled(true);
+                mTimeBoardCustomView.setEnabled(true);
+            }
+        });
 
-                if (!mDeepWhiteNoiseButton.isEnabled()){
-                    mDeepWhiteNoiseButton.setEnabled(true);
-                    mDeepWhiteNoiseButton.initBitmap();
-                }
+        findViewById(R.id.informationButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                displayCreditAlert();
             }
         });
 
@@ -184,26 +184,36 @@ public class MainActivity extends ActionBarActivity {
         mPlayIntent.putExtra(MediaService.INTENT_MEDIA_TYPE, mediaType);
     }
 
-    private void displayAlert() {
+    private void displayCreditAlert(){
+        String message = "Graphic elements Designed by Freepik.com";
+        AlertDialog dialog = displayAlert(message);
+        dialog.setTitle("Acknowledgements");
+        dialog.show();
+    }
+
+    private void displayFinishedAlert() {
         String formatted = String.format("Operation ran for: " + "%d min, %d sec",
                 TimeUnit.MILLISECONDS.toMinutes(mTimeServiceIsRunning),
                 TimeUnit.MILLISECONDS.toSeconds(mTimeServiceIsRunning) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(mTimeServiceIsRunning))
         );
 
-        new AlertDialog.Builder(this)
-                .setMessage(formatted)
+        displayAlert(formatted).show();
+    }
+
+    private AlertDialog displayAlert(String message) {
+        return new AlertDialog.Builder(this)
+                .setMessage(message)
                 .setCancelable(false)
                 .setNeutralButton(getString(android.R.string.ok),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
 
-
                             }
                         }
                 )
-                .create().show();
+                .create();
     }
 
     @Override

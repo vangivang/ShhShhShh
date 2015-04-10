@@ -37,13 +37,17 @@ public class WhiteNoiseBoard extends View {
 
     public void initBitmap(){
         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.white_noise_board_non_active);
+        invalidate();
     }
-
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         mIsTouchable = enabled;
+
+        // When this view is enables, it means it is not selected. And visa versa.
+        // Needed whe OFF button is clicked.
+        mIsBitmapSelected = !enabled;
     }
 
     @Override
@@ -62,14 +66,14 @@ public class WhiteNoiseBoard extends View {
                     int yy = (int) event.getY();
 
                     if (Color.alpha(mBitmap.getPixel(xx, yy)) != 0){
-                        initBitmap();
                         if (!mIsBitmapSelected){
                             mIsBitmapSelected = true;
                             mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.white_noise_board_active);
-                            performClick();
                         } else {
                             mIsBitmapSelected = false;
+                            initBitmap();
                         }
+                        performClick();
                     }
                     invalidate();
                     break;
