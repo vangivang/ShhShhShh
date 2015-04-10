@@ -22,6 +22,7 @@ import android.widget.Spinner;
 
 import java.util.concurrent.TimeUnit;
 
+import hailey.shhshhshh.views.TimeBoardCustomView;
 import hailey.shhshhshh.views.WhiteNoiseBoard;
 
 
@@ -37,8 +38,8 @@ public class MainActivity extends ActionBarActivity {
     private boolean mIsPlayingShh = false;
     private ImageButton mStartButton;
     private WhiteNoiseBoard mDeepWhiteNoiseButton;
+    private TimeBoardCustomView mTimeBoardCustomView;
     private ImageButton mSpinningArrow;
-    private Spinner mSpinner;
     private long mTimeServiceIsRunning;
     private boolean mIsPlayingDeepWhiteNoise = false;
 
@@ -48,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
             if (intent.getAction().equals(MEDIA_STOPPED_ACTION)) {
                 mTimeServiceIsRunning = System.currentTimeMillis() - mTimeServiceIsRunning;
                 mStartButton.setEnabled(true);
-                mSpinner.setEnabled(true);
+                mTimeBoardCustomView.setEnabled(true);
                 displayAlert();
             }
         }
@@ -61,38 +62,31 @@ public class MainActivity extends ActionBarActivity {
 
         mSpinningArrow = (ImageButton) findViewById(R.id.spinningArrow);
 
-        mSpinner = (Spinner) findViewById(R.id.shutDownSpinner);
-        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mTimeBoardCustomView = (TimeBoardCustomView) findViewById(R.id.timeBoard);
+        mTimeBoardCustomView.setOnClickListener(new TimeBoardCustomView.OnTimeAmountClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onTimeAmountClicked(TimeBoardCustomView.TimeAmount timeAmount) {
                 long timeToFinish;
-                int[] values = getResources().getIntArray(R.array.timer_values);
-
-                switch (position) {
-                    case 0:
-                        timeToFinish = values[0] * ONE_MINUTE;
+                switch (timeAmount){
+                    case TEN:
+                        timeToFinish = 10 * ONE_MINUTE;
                         break;
-                    case 1:
-                        timeToFinish = values[1] * ONE_MINUTE;
+                    case TWENTY:
+                        timeToFinish = 20 * ONE_MINUTE;
                         break;
-                    case 2:
-                        timeToFinish = values[2] * ONE_MINUTE;
+                    case THIRTY:
+                        timeToFinish = 30 * ONE_MINUTE;
                         break;
                     default:
-                        timeToFinish = values[0] * ONE_MINUTE;
-                        break;
+                        timeToFinish = 10 * ONE_MINUTE;
                 }
 
                 updatePlayIntent(timeToFinish, MediaService.MediaType.SHH);
             }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
         });
 
         mDeepWhiteNoiseButton = (WhiteNoiseBoard) findViewById(R.id.deepWhiteNoiseButton);
+
         mStartButton = (ImageButton) findViewById(R.id.startButton);
         ImageButton mStopButton = (ImageButton) findViewById(R.id.stopButton);
 
@@ -105,9 +99,9 @@ public class MainActivity extends ActionBarActivity {
 
                 v.setEnabled(false);
                 mDeepWhiteNoiseButton.setEnabled(false);
-                mSpinner.setEnabled(false);
+                mTimeBoardCustomView.setEnabled(false);
                 mTimeServiceIsRunning = System.currentTimeMillis();
-                updatePlayIntent(getCurrentTimeSelectionFromSpinner(), MediaService.MediaType.SHH);
+                updatePlayIntent(10 * ONE_MINUTE, MediaService.MediaType.SHH); //TODO: don't forget to set this
                 startService(mPlayIntent);
                 mIsPlayingShh = true;
                 mSpinningArrow.animate().rotation(180f).setDuration(200l).setInterpolator(new AccelerateDecelerateInterpolator());
@@ -123,7 +117,8 @@ public class MainActivity extends ActionBarActivity {
                 mIsPlayingDeepWhiteNoise = false;
                 if (!mStartButton.isEnabled()) {
                     mStartButton.setEnabled(true);
-                    mSpinner.setEnabled(true);
+                    mTimeBoardCustomView.setEnabled(true);
+                    mTimeBoardCustomView.initBitmaps();
                 }
 
                 if (!mDeepWhiteNoiseButton.isEnabled()){
@@ -132,7 +127,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        mDeepWhiteNoiseButton.setOnClickListener(new View.OnClickListener() {
+        mDeepWhiteNoiseButton.setOnClickListener(new View.OnClickListener() { //TODO: this will not work. use a listener inside the view class
             @Override
             public void onClick(View v) {
 
@@ -143,8 +138,8 @@ public class MainActivity extends ActionBarActivity {
                         mStartButton.setEnabled(true);
                     }
 
-                    if (!mSpinner.isEnabled()){
-                        mSpinner.setEnabled(true);
+                    if (!mTimeBoardCustomView.isEnabled()){
+                        mTimeBoardCustomView.setEnabled(true);
                     }
                 } else {
                     if (mIsPlayingShh){
@@ -155,8 +150,8 @@ public class MainActivity extends ActionBarActivity {
                         mStartButton.setEnabled(false);
                     }
 
-                    if (mSpinner.isEnabled()){
-                        mSpinner.setEnabled(false);
+                    if (mTimeBoardCustomView.isEnabled()){
+                        mTimeBoardCustomView.setEnabled(false);
                     }
 
                     updatePlayIntent(0, MediaService.MediaType.DEEP_WHITE_NOISE);
@@ -200,17 +195,17 @@ public class MainActivity extends ActionBarActivity {
         mPlayIntent.putExtra(MediaService.INTENT_MEDIA_TYPE, mediaType);
     }
 
-    private long getCurrentTimeSelectionFromSpinner(){
-        long time;
-        int[] values = getResources().getIntArray(R.array.timer_values);
-        if (mSpinner != null){
-            time = values[mSpinner.getSelectedItemPosition()];
-        } else {
-            time = values[0];
-        }
-
-        return time * ONE_MINUTE;
-    }
+//    private long getCurrentTimeSelectionFromSpinner(){
+//        long time;
+//        int[] values = getResources().getIntArray(R.array.timer_values);
+//        if (mSpinner != null){
+//            time = values[mSpinner.getSelectedItemPosition()];
+//        } else {
+//            time = values[0];
+//        }
+//
+//        return time * ONE_MINUTE;
+//    }
 
     private void displayAlert() {
         String formatted = String.format("Operation ran for: " + "%d min, %d sec",

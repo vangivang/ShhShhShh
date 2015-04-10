@@ -14,14 +14,19 @@ import hailey.shhshhshh.R;
 /**
  * Created by alonm on 4/9/15.
  */
-public class TimeBoardCustomView extends View {
+public class TimeBoardCustomView extends View implements View.OnClickListener {
 
     private Bitmap mBitmap1;
     private Bitmap mBitmap2;
     private Bitmap mBitmap3;
-    private boolean mIsButton1Selected = false;
-    private boolean mIsButton2Selected = false;
-    private boolean mIsButton3Selected = false;
+    private boolean mIsTouchable = true;
+    public enum TimeAmount {TEN, TWENTY, THIRTY}
+    private TimeAmount mTimeAmount;
+    private OnTimeAmountClickListener mOnTimeAmountClickListener;
+
+    public interface OnTimeAmountClickListener{
+        public void onTimeAmountClicked(TimeAmount timeAmount);
+    }
 
     public TimeBoardCustomView(Context context) {
         super(context);
@@ -38,8 +43,17 @@ public class TimeBoardCustomView extends View {
         initBitmaps();
     }
 
+    public void setOnClickListener(OnTimeAmountClickListener listener){
+        mOnTimeAmountClickListener = listener;
+    }
 
-    private void initBitmaps() {
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        mIsTouchable = enabled;
+    }
+
+    public void initBitmaps() {
         mBitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.ten_min_board_non_active);
         mBitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.twenty_min_board_non_active);
         mBitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.thirty_min_board_non_active);
@@ -56,39 +70,31 @@ public class TimeBoardCustomView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                int xx = (int) event.getX();
-                int yy = (int) event.getY();
-                if (Color.alpha(mBitmap1.getPixel(xx, yy)) != 0) {
-                    initBitmaps();
-                    if (!mIsButton1Selected){
-                        mIsButton1Selected = true;
+        if (mIsTouchable) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    int xx = (int) event.getX();
+                    int yy = (int) event.getY();
+                    if (Color.alpha(mBitmap1.getPixel(xx, yy)) != 0) {
+                        initBitmaps();
                         mBitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.ten_min_board_active);
-                    } else {
-                        mIsButton1Selected = false;
-                    }
-                } else if (Color.alpha(mBitmap2.getPixel(xx, yy)) != 0) {
-                    initBitmaps();
-                    if (!mIsButton2Selected){
-                        mIsButton2Selected = true;
+                        mTimeAmount = TimeAmount.TEN;
+                    } else if (Color.alpha(mBitmap2.getPixel(xx, yy)) != 0) {
+                        initBitmaps();
                         mBitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.twenty_min_board_active);
-                    } else {
-                        mIsButton2Selected = false;
-                    }
-                } else if (Color.alpha(mBitmap3.getPixel(xx, yy)) != 0) {
-                    initBitmaps();
-                    if (!mIsButton3Selected){
-                        mIsButton3Selected = true;
+                        mTimeAmount = TimeAmount.TWENTY;
+                    } else if (Color.alpha(mBitmap3.getPixel(xx, yy)) != 0) {
+                        initBitmaps();
                         mBitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.thirty_min_board_active);
-                    } else {
-                        mIsButton3Selected = false;
+                        mTimeAmount = TimeAmount.THIRTY;
                     }
-                }
-                break;
+                    break;
+            }
+
+            invalidate();
+            performClick();
         }
 
-        invalidate();
         return true;
     }
 
@@ -96,5 +102,10 @@ public class TimeBoardCustomView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         setMeasuredDimension(mBitmap1.getWidth(), mBitmap1.getHeight());
+    }
+
+    @Override
+    public void onClick(View v) {
+        mOnTimeAmountClickListener.onTimeAmountClicked(mTimeAmount);
     }
 }
