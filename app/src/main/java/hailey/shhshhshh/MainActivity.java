@@ -26,6 +26,7 @@ public class MainActivity extends ActionBarActivity {
     public static final String IS_PLAYING_SHH = "IS_PLAYING_SHH";
     public static final String MEDIA_STOPPED_ACTION = "MEDIA_STOPPED_ACTION";
     private static final String IS_PLAYING_WHITE_NOISE = "IS_PLAYING_WHITE_NOISE";
+    private static final String SERVICE_TIME_OUT_VALUE = "SERVICE_TIME_OUT_VALUE";
 
     private Intent mPlayIntent;
     private boolean mIsPlayingShh = false;
@@ -35,6 +36,7 @@ public class MainActivity extends ActionBarActivity {
     private ImageButton mSpinningArrow;
     private long mTimeServiceIsRunning;
     private boolean mIsPlayingDeepWhiteNoise = false;
+    private long mStopServiceValue;
 
     private BroadcastReceiver mMediaPlayerStoppedBroadCast = new BroadcastReceiver() {
         @Override
@@ -50,6 +52,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,19 +148,34 @@ public class MainActivity extends ActionBarActivity {
         });
 
         if (savedInstanceState != null) {
+            long timeOut = savedInstanceState.getLong(SERVICE_TIME_OUT_VALUE, TimeBoardCustomView.TimeAmount.TEN.timeValue());
+
             if (savedInstanceState.getBoolean(IS_PLAYING_SHH, false)) {
                 mIsPlayingShh = true;
                 mIsPlayingDeepWhiteNoise = false;
                 mStartButton.setEnabled(false);
+                mTimeBoardCustomView.setEnabled(false);
+//                mTimeBoardCustomView.markSelectedButtonByTimeValue(timeOut);
+                mDeepWhiteNoiseButton.setEnabled(false);
+                setSpinningArrow(true);
+                updatePlayIntent(timeOut, MediaService.MediaType.SHH);
             } else if (savedInstanceState.getBoolean(IS_PLAYING_WHITE_NOISE, false)){
                 mIsPlayingShh = false;
                 mIsPlayingDeepWhiteNoise = true;
                 mStartButton.setEnabled(false);
+                mTimeBoardCustomView.setEnabled(false);
+//                mTimeBoardCustomView.markSelectedButtonByTimeValue(timeOut);
+                mDeepWhiteNoiseButton.setEnabled(false);
+                setSpinningArrow(true);
+                updatePlayIntent(timeOut, MediaService.MediaType.SHH);
             } else {
                 mIsPlayingDeepWhiteNoise = false;
                 mIsPlayingShh = false;
                 mStartButton.setEnabled(true);
+                setSpinningArrow(false);
+                updatePlayIntent(timeOut, MediaService.MediaType.SHH);
             }
+
         } else {
             LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver(mMediaPlayerStoppedBroadCast, new IntentFilter(MEDIA_STOPPED_ACTION));
         }
@@ -176,6 +194,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void updatePlayIntent(long timeToFinish, MediaService.MediaType mediaType){
+        mStopServiceValue = timeToFinish;
         mPlayIntent = new Intent(this, MediaService.class);
         if (timeToFinish > 0){
             mPlayIntent.putExtra(MediaService.INTENT_TIME_TO_FINISH, timeToFinish);
@@ -221,6 +240,7 @@ public class MainActivity extends ActionBarActivity {
         super.onSaveInstanceState(outState);
         outState.putBoolean(IS_PLAYING_SHH, mIsPlayingShh);
         outState.putSerializable(IS_PLAYING_WHITE_NOISE, mIsPlayingDeepWhiteNoise);
+        outState.putLong(SERVICE_TIME_OUT_VALUE, mStopServiceValue);
     }
 
     @Override

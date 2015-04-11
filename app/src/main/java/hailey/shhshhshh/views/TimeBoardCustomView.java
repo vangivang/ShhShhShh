@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +26,7 @@ public class TimeBoardCustomView extends View {
     private boolean mIsTouchable = true;
 
     public enum TimeAmount {
+        NONE(10 * ONE_MINUTE),
         TEN(10 * ONE_MINUTE),
         TWENTY(20 * ONE_MINUTE),
         THIRTY(30 * ONE_MINUTE);
@@ -96,17 +99,11 @@ public class TimeBoardCustomView extends View {
                     int xx = (int) event.getX();
                     int yy = (int) event.getY();
                     if (Color.alpha(mBitmap1.getPixel(xx, yy)) != 0) {
-                        initBitmaps();
-                        mBitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.ten_min_board_active);
-                        mTimeAmount = TimeAmount.TEN;
+                        markSelectedButtonOne();
                     } else if (Color.alpha(mBitmap2.getPixel(xx, yy)) != 0) {
-                        initBitmaps();
-                        mBitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.twenty_min_board_active);
-                        mTimeAmount = TimeAmount.TWENTY;
+                        markSelectedButtonTwo();
                     } else if (Color.alpha(mBitmap3.getPixel(xx, yy)) != 0) {
-                        initBitmaps();
-                        mBitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.thirty_min_board_active);
-                        mTimeAmount = TimeAmount.THIRTY;
+                        markSelectedButtonThree();
                     }
                     invalidate();
                     mOnTimeAmountClickListener.onTimeAmountClicked(mTimeAmount);
@@ -118,9 +115,41 @@ public class TimeBoardCustomView extends View {
         return mIsTouchable;
     }
 
+    public void markSelectedButtonByTimeValue(){
+        switch (mTimeAmount){
+            case TEN:
+                markSelectedButtonOne();
+                break;
+            case TWENTY:
+                markSelectedButtonTwo();
+                break;
+            case THIRTY:
+                markSelectedButtonThree();
+                break;
+        }
+    }
+
+    private void markSelectedButtonThree() {
+        initBitmaps();
+        mBitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.thirty_min_board_active);
+        mTimeAmount = TimeAmount.THIRTY;
+    }
+
+    private void markSelectedButtonTwo() {
+        initBitmaps();
+        mBitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.twenty_min_board_active);
+        mTimeAmount = TimeAmount.TWENTY;
+    }
+
+    private void markSelectedButtonOne() {
+        initBitmaps();
+        mBitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.ten_min_board_active);
+        mTimeAmount = TimeAmount.TEN;
+    }
+
     public TimeAmount getCurrentTimeAmount(){
         if (mTimeAmount == null){
-            mTimeAmount = TimeAmount.TEN;
+            mTimeAmount = TimeAmount.NONE;
         }
 
         return mTimeAmount;
@@ -130,5 +159,44 @@ public class TimeBoardCustomView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         setMeasuredDimension(mBitmap1.getWidth(), mBitmap1.getHeight());
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        State state = new State(super.onSaveInstanceState(), getCurrentTimeAmount());
+        bundle.putParcelable(State.STATE, state);
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            State customViewState = bundle.getParcelable(State.STATE);
+
+            // The vars you saved - do whatever you want with them
+            mTimeAmount = customViewState.getSavedTimeAmount();
+            markSelectedButtonByTimeValue();
+            super.onRestoreInstanceState(customViewState.getSuperState());
+            return;
+        }
+        // Stops a bug with the wrong state being passed to the super
+        super.onRestoreInstanceState(BaseSavedState.EMPTY_STATE);
+    }
+
+    protected static class State extends BaseSavedState {
+        protected static final String STATE = "YourCustomView.STATE";
+
+        private final TimeAmount mTimeAmount;
+
+        public State(Parcelable superState, TimeAmount timeAmount) {
+            super(superState);
+            mTimeAmount = timeAmount;
+        }
+
+        public TimeAmount getSavedTimeAmount(){
+            return mTimeAmount;
+        }
     }
 }

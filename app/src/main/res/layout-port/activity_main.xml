@@ -1,0 +1,93 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/background_port"
+                tools:context=".MainActivity">
+
+    <View
+        android:id="@+id/anchor"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="50dp"
+        android:visibility="invisible"/>
+
+    <hailey.shhshhshh.views.TimeBoardCustomView
+        android:id="@+id/timeBoard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginEnd="2dp"
+        />
+
+    <ImageButton
+        android:id="@+id/spinningArrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:src="@drawable/spinning_arrow"
+        android:layout_alignBottom="@+id/anchor"
+        android:layout_alignRight="@+id/anchor"
+        android:layout_alignEnd="@+id/anchor"
+        android:layout_marginRight="-45dp"
+        android:layout_marginEnd="-45dp"
+        android:layout_marginBottom="15dp"
+        />
+
+    <hailey.shhshhshh.views.WhiteNoiseBoard
+        android:id="@+id/deepWhiteNoiseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/anchor"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        />
+
+    <ImageButton
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:src="@drawable/on_text"
+        android:layout_alignBottom="@+id/anchor"
+        android:layout_marginBottom="24dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        />
+
+    <ImageButton
+        android:id="@+id/stopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:src="@drawable/off_text"
+        android:layout_alignBottom="@+id/anchor"
+        android:layout_marginBottom="24dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
+        />
+    
+    <ImageButton
+        android:id="@+id/informationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:src="@drawable/information_icon"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"/>
+</RelativeLayout>
