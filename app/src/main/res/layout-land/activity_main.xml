@@ -13,7 +13,7 @@
         android:layout_marginTop="50dp"
         android:visibility="invisible"/>
 
-    <hailey.shhshhshh.views.TimeBoardCustomView
+    <com.shhshhshh.views.TimeBoardCustomView
         android:id="@+id/timeBoard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         android:layout_marginTop="25dp"
         />
 
-    <hailey.shhshhshh.views.WhiteNoiseBoard
+    <com.shhshhshh.views.WhiteNoiseBoard
         android:id="@+id/deepWhiteNoiseButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

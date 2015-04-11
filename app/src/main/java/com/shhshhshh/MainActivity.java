@@ -1,4 +1,4 @@
-package hailey.shhshhshh;
+package com.shhshhshh;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -17,8 +17,8 @@ import android.widget.ImageButton;
 
 import java.util.concurrent.TimeUnit;
 
-import hailey.shhshhshh.views.TimeBoardCustomView;
-import hailey.shhshhshh.views.WhiteNoiseBoard;
+import com.shhshhshh.views.TimeBoardCustomView;
+import com.shhshhshh.views.WhiteNoiseBoard;
 
 
 public class MainActivity extends ActionBarActivity {

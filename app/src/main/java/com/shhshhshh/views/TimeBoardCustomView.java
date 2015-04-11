@@ -1,4 +1,4 @@
-package hailey.shhshhshh.views;
+package com.shhshhshh.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,7 +11,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import hailey.shhshhshh.R;
+import com.shhshhshh.R;
 
 /**
  * Created by alonm on 4/9/15.

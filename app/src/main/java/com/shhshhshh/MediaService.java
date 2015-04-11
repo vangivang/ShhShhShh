@@ -1,4 +1,4 @@
-package hailey.shhshhshh;
+package com.shhshhshh;
 
 import android.app.Notification;
 import android.app.PendingIntent;
