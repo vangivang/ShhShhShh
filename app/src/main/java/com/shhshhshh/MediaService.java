@@ -11,6 +11,8 @@ import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.shhshhshh.views.TimeBoardCustomView;
+
 /**
  * Created by alonm on 3/14/15.
  */
@@ -29,7 +31,7 @@ public class MediaService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        long timeToFinish = intent.getLongExtra(INTENT_TIME_TO_FINISH, 5000);
+        long timeToFinish = intent.getLongExtra(INTENT_TIME_TO_FINISH, TimeBoardCustomView.TimeAmount.TEN.timeValue());
         MediaType mediaType = (MediaType) intent.getSerializableExtra(INTENT_MEDIA_TYPE);
 
         startMediaPlayer(timeToFinish, mediaType);
