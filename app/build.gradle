@@ -8,13 +8,31 @@ android {
         applicationId "hailey.shhshhshh"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode 2000
+        versionName "2.0"
     }
+
+    signingConfigs {
+        release {
+            storeFile file('/Users/alonm/Development/Android General/keystores/shh-release.keystore.jks')
+            keyAlias 'shhreleasekey'
+            keyPassword 'a1a2a3a1'
+            storePassword 'a1a2a3a1'
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            applicationIdSuffix '.debug'
+            minifyEnabled false
+            debuggable true
         }
     }
 }
