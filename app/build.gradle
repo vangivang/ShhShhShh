@@ -8,8 +8,8 @@ android {
         applicationId "hailey.shhshhshh"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 1001
-        versionName "1.5"
+        versionCode 2000
+        versionName "2.0"
     }
 
     signingConfigs {
