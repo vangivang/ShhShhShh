@@ -13,9 +13,6 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.shhshhshh.views.TimeBoardCustomView;
 
-/**
- * Created by alonm on 3/14/15.
- */
 public class MediaService extends Service {
 
     public static final String INTENT_TIME_TO_FINISH = "INTENT_TIME_TO_FINISH";

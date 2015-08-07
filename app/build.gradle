@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "hailey.shhshhshh"
+        applicationId "baby.shhshhshh"
         minSdkVersion 15
         targetSdkVersion 21
         versionCode 2000
@@ -39,5 +39,5 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
 }
