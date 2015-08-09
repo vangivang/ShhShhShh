@@ -7,9 +7,9 @@ android {
     defaultConfig {
         applicationId "baby.shhshhshh"
         minSdkVersion 15
-        targetSdkVersion 21
-        versionCode 2000
-        versionName "2.0"
+        targetSdkVersion 22
+        versionCode 10000000
+        versionName "1.0"
     }
 
     signingConfigs {
